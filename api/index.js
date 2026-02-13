@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://mern-estate-beta-ten.vercel.app",
+    origin: "https://mern-estate-seven-drab.vercel.app",
     credentials: true,
   })
 );
