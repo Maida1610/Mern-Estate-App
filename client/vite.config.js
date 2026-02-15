@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
   proxy: {
      '/api': {
-      target:'https://localhost:3000',
+      target:'https://real-estate-one-roan.vercel.app',
       secure: false,
     },
   },
