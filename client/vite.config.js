@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
   proxy: {
      '/api': {
-      target:'https://real-estate-five-plum.vercel.app',
+      target:'https://localhost:3000',
       secure: false,
     },
   },
