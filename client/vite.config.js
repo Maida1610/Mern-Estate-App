@@ -4,10 +4,11 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base:"/",
   server: {
   proxy: {
      '/api': {
-      target:'http://localhost:3000',
+      target:'https://real-estate-five-plum.vercel.app',
       secure: false,
     },
   },
