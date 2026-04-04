@@ -3,13 +3,11 @@
   "builds": [
     {
       "src": "api/index.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "client/package.json",
-      "use": "@vercel/static-build",
+      "use": "@vercel/node",
       "config": {
-        "distDir": "client/dist"
+        "includeFiles": [
+          "dist/**"
+        ]
       }
     }
   ],
@@ -23,7 +21,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/client/dist/index.html"
+      "dest": "api/index.js"
     }
   ]
 }
