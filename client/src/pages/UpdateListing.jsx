@@ -1,17 +1,18 @@
-import  {  useEffect, useState } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
 export const UpdateListing = () => {
   const [files, setFiles] = useState([]);
-  const {currentUser} = useSelector(state => state.user);
+  const { currentUser } = useSelector((state) => state.user);
   const [uploading, setUploading] = useState(false);
   const [imageUploadError, setImageUploadError] = useState("");
   const [error, setError] = useState(false);
-  const [ loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const params = useParams();
-   
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -26,26 +27,23 @@ export const UpdateListing = () => {
     discountPrice: 50,
     imageUrls: [],
   });
-  
+
   useEffect(() => {
-     const fetchListing = async ( ) => {
-        const listingId = params.listingId;
-        const res = await fetch (`/api/listing/get/${listingId}`);
-        const data = await res.json();
-       
-        if (data.success === false) {
-             console.log(data.message);
-        }  
-         setFormData(data);
-     };
-     fetchListing();
+    const fetchListing = async () => {
+      const listingId = params.listingId;
+      const res = await fetch(`/api/listing/get/${listingId}`);
+      const data = await res.json();
+
+      if (data.success === false) {
+        console.log(data.message);
+      }
+      setFormData(data);
+    };
+    fetchListing();
   }, []);
   // ================= IMAGE SUBMIT =================
   const handleImageSubmit = async () => {
-    if (
-      files.length === 0 ||
-      files.length + formData.imageUrls.length > 6
-    ) {
+    if (files.length === 0 || files.length + formData.imageUrls.length > 6) {
       setImageUploadError("You can only upload 6 images per listing");
       return;
     }
@@ -76,7 +74,7 @@ export const UpdateListing = () => {
         data.append("file", file);
         data.append(
           "upload_preset",
-          import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+          import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
         );
         data.append("folder", "listings");
 
@@ -85,7 +83,7 @@ export const UpdateListing = () => {
           {
             method: "POST",
             body: data,
-          }
+          },
         );
 
         const result = await res.json();
@@ -128,55 +126,52 @@ export const UpdateListing = () => {
     }
   };
 
-    const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    // basic validations
-    if (formData.imageUrls.length < 1) {
-      setError("You must upload at least one image");
-      return;
+    try {
+      // basic validations
+      if (formData.imageUrls.length < 1) {
+        setError("You must upload at least one image");
+        return;
+      }
+
+      if (+formData.discountPrice > +formData.regularPrice) {
+        setError("Discount price must be lower than regular price");
+        return;
+      }
+
+      setLoading(true);
+      setError(false);
+
+      const res = await fetch(`/api/listing/update/${params.listingId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          ...formData,
+          userRef: currentUser._id, // ⭐ backend expects userRef
+        }),
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (!res.ok || data.success === false) {
+        setError(data.message || "Unauthorized");
+        return;
+      }
+
+      // success
+      console.log("Listing created:", data);
+      navigate(`/listing/${data._id}`);
+    } catch (error) {
+      setLoading(false);
+      setError(error.message);
     }
-
-    if (+formData.discountPrice > +formData.regularPrice) {
-      setError("Discount price must be lower than regular price");
-      return;
-    }
-
-    setLoading(true);
-    setError(false);
-
-    const res = await fetch(`/api/listing/update/${params.listingId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-     },
-      credentials: "include", 
-      body: JSON.stringify({
-        ...formData,
-        userRef: currentUser._id, // ⭐ backend expects userRef
-      }),
-    });
-
-    const data = await res.json();
-    setLoading(false);
-
-    if (!res.ok || data.success === false) {
-      setError(data.message || "Unauthorized");
-      return;
-    }
-
-    // success
-    console.log("Listing created:", data);
-     navigate(`/listing/${data._id}`);
-
-  } catch (error) {
-    setLoading(false);
-    setError(error.message);
-  }
-};
-
-
+  };
 
   return (
     <main className="p-3 max-w-4xl mx-auto">
@@ -192,15 +187,15 @@ export const UpdateListing = () => {
             placeholder="Name"
             className="border p-3 rounded-lg"
             id="name"
-            maxLength='62'
-            minLength='10'
+            maxLength="62"
+            minLength="10"
             value={formData.name}
             onChange={handleChange}
             required
           />
 
           <textarea
-            type = 'text'
+            type="text"
             placeholder="Description"
             className="border p-3 rounded-lg"
             id="description"
@@ -276,78 +271,74 @@ export const UpdateListing = () => {
             </div>
           </div>
 
-           
-  <div className="flex items-center gap-2">
-    <input
-      className="p-3 border border-gray-300 rounded-lg"
-      type="number"
-      id="bedrooms"
-      min="1"
-      max="10"
-      required
-      value={formData.bedrooms}
-      onChange={handleChange}
-    />
-    <p>Beds</p>
-  </div>
+          <div className="flex items-center gap-2">
+            <input
+              className="p-3 border border-gray-300 rounded-lg"
+              type="number"
+              id="bedrooms"
+              min="1"
+              max="10"
+              required
+              value={formData.bedrooms}
+              onChange={handleChange}
+            />
+            <p>Beds</p>
+          </div>
 
-  <div className="flex items-center gap-2">
-    <input
-      className="p-3 border border-gray-300 rounded-lg"
-      type="number"
-      id="bathrooms"
-      min="1"
-      max="10"
-      required
-      value={formData.bathrooms}
-      onChange={handleChange}
-    />
-    <p>Baths</p>
-  </div>
+          <div className="flex items-center gap-2">
+            <input
+              className="p-3 border border-gray-300 rounded-lg"
+              type="number"
+              id="bathrooms"
+              min="1"
+              max="10"
+              required
+              value={formData.bathrooms}
+              onChange={handleChange}
+            />
+            <p>Baths</p>
+          </div>
 
-  <div className="flex items-center gap-2">
-    <input
-      className="p-3 border border-gray-300 rounded-lg"
-      type="number"
-      id="regularPrice"
-      min="50"
-      max="1000000"
-      required
-      value={formData.regularPrice}
-      onChange={handleChange}
-    />
-    <div className="flex flex-col items-center">
-      <p>Regular Price</p>
-      <span className="text-xs">($ / month)</span>
-    </div>
-  </div>
+          <div className="flex items-center gap-2">
+            <input
+              className="p-3 border border-gray-300 rounded-lg"
+              type="number"
+              id="regularPrice"
+              min="50"
+              max="1000000"
+              required
+              value={formData.regularPrice}
+              onChange={handleChange}
+            />
+            <div className="flex flex-col items-center">
+              <p>Regular Price</p>
+              <span className="text-xs">($ / month)</span>
+            </div>
+          </div>
 
-  <div className="flex items-center gap-2">
-    <input
-      className="p-3 border border-gray-300 rounded-lg"
-      type="number"
-      id="discountPrice"
-      min="50"
-      max="1000000"
-      required
-      value={formData.discountPrice}
-      onChange={handleChange}
-    />
-    <div className="flex flex-col items-center">
-      <p>Discounted Price</p>
-      <span className="text-xs">($ / month)</span>
-    </div>
-  </div>
-         </div>
-
+          <div className="flex items-center gap-2">
+            <input
+              className="p-3 border border-gray-300 rounded-lg"
+              type="number"
+              id="discountPrice"
+              min="50"
+              max="1000000"
+              required
+              value={formData.discountPrice}
+              onChange={handleChange}
+            />
+            <div className="flex flex-col items-center">
+              <p>Discounted Price</p>
+              <span className="text-xs">($ / month)</span>
+            </div>
+          </div>
+        </div>
 
         {/* RIGHT SIDE */}
         <div className="flex flex-col flex-1 gap-4">
           <p className="font-semibold">
             Images
-            <span className="font-normal text-gray-600 ml-2">
-              (max 6)
-            </span>
+            <span className="font-normal text-gray-600 ml-2">(max 6)</span>
           </p>
 
           <div className="flex gap-4">
@@ -370,9 +361,7 @@ export const UpdateListing = () => {
           </div>
 
           {imageUploadError && (
-            <p className="text-red-700 text-sm">
-              {imageUploadError}
-            </p>
+            <p className="text-red-700 text-sm">{imageUploadError}</p>
           )}
 
           {formData.imageUrls.map((url, index) => (
@@ -396,9 +385,9 @@ export const UpdateListing = () => {
           ))}
 
           <button className="p-3 bg-slate-700 text-white rounded-lg uppercase">
-            {loading ? 'Creating...' : 'Update Listing'}
+            {loading ? "Creating..." : "Update Listing"}
           </button>
-           {error && <p className="text-red-700 text-sm">{error}</p>}
+          {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
       </form>
     </main>
