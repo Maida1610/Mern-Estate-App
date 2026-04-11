@@ -36,10 +36,6 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
 app.use("/api/user", userRouter);
 app.use('/api/auth', authRouter); 
 app.use('/api/listing', listingRouter )
@@ -53,3 +49,7 @@ app.use((err, req, res, next ) => {
       message,
    });
 });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+export default app;
