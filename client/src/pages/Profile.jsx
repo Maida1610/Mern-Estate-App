@@ -25,8 +25,11 @@ export const Profile = () => {
   const [filePercentage, setFilePercentage] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
-  const [showListingsError, setShowListingsError ] = useState(false); 
+  const [showListingsError, setShowListingsError] = useState(false);
   const [userListings, setUserListings] = useState([]);
+
+  const API = import.meta.env.VITE_API_URL;
+
   // --- Upload image to Cloudinary ---
   const handleFileUpload = async (file) => {
     if (!file) return;
@@ -50,11 +53,11 @@ export const Profile = () => {
         {
           onUploadProgress: (progressEvent) => {
             const percent = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
+              (progressEvent.loaded * 100) / progressEvent.total,
             );
             setFilePercentage(percent);
           },
-        }
+        },
       );
 
       setImage(res.data.secure_url);
@@ -66,7 +69,7 @@ export const Profile = () => {
         updateUserSuccess({
           ...currentUser,
           avatar: res.data.secure_url,
-        })
+        }),
       );
     } catch (err) {
       console.error("Cloudinary error:", err.response?.data || err);
@@ -105,7 +108,7 @@ export const Profile = () => {
     };
 
     try {
-      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+      const res = await fetch(`${API}/api/user/update/${currentUser._id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
@@ -126,70 +129,70 @@ export const Profile = () => {
     }
   };
 
-  const handleDeleteUser = async ( ) => {
-     try {
-        dispatch(deleteUserStart());
-        const res = await fetch (`/api/user/delete/${currentUser._id}`,{
-           method: 'DELETE',
-        });
-        const data = await res.json();
-        if (data.success === false) {
-          dispatch(deleteUserFailure(data.message));
-          return;
-        }
-        dispatch(deleteUserFailure(data));
-     } catch (error) {
-       dispatch(deleteUserSuccess(error.message));
-     }
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`${API}/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserFailure(data));
+    } catch (error) {
+      dispatch(deleteUserSuccess(error.message));
+    }
   };
 
-const handleSignOut = async() =>{
-       try {
-        dispatch(signOutUserStart()); 
-         const res = await fetch('/api/auth/signout');
-         const data = await res.json();
-         if(data.success === false){
-          dispatch(deleteUserFailure(data.message));
-          return;
-         }
-         dispatch(deleteUserSuccess(data));
-       } catch (error) {
-          dispatch(deleteUserFailure(data.message));
-       }
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutUserStart());
+      const res = await fetch(`${API}/api/auth/signout`);
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(data.message));
+    }
   };
 
-const handleShowListings = async ( ) => {
+  const handleShowListings = async () => {
     try {
       setShowListingsError(false);
-      const res = await fetch(`/api/user/listings/${currentUser._id}`);
-      const data = await res.json(); 
-      if(data.success === false){
+      const res = await fetch(`${API}/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
+      if (data.success === false) {
         setShowListingsError(true);
         return;
       }
       setUserListings(data);
-   
     } catch (error) {
-      setShowListingsError (true);
+      setShowListingsError(true);
     }
-};
+  };
 
-const handleListingDelete = async (listingId) => {
-   try {
-     const res = await fetch(`/api/listing/delete/${listingId}`, {
-        method: 'DELETE',
-     });
-     const data = await res.json();
-     if(data.success === false)
-      {
+  const handleListingDelete = async (listingId) => {
+    try {
+      const res = await fetch(`${API}/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
         console.log(data.message);
         return;
-      } 
-      setUserListings((prev) => prev.filter((listing) => listing._id !== listingId));
-   } catch (error) {
-     console.log(error.message);
-   }
-}; 
+      }
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId),
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -229,7 +232,9 @@ const handleListingDelete = async (listingId) => {
             Image successfully uploaded
           </p>
         )}
-        <p className="text-sm text-gray-500 text-center">Image must be less than 2MB</p>
+        <p className="text-sm text-gray-500 text-center">
+          Image must be less than 2MB
+        </p>
 
         {/* Form fields */}
         <input
@@ -264,9 +269,12 @@ const handleListingDelete = async (listingId) => {
         >
           {loading ? "Updating..." : "Update"}
         </button>
-        <Link className="bg-green-700 text-white p-3 rounded-lg
-        uppercase text-center hover:opacity-95" to={'/create-listing'} >
-           Create Listing
+        <Link
+          className="bg-green-700 text-white p-3 rounded-lg
+        uppercase text-center hover:opacity-95"
+          to={"/create-listing"}
+        >
+          Create Listing
         </Link>
       </form>
 
@@ -278,40 +286,68 @@ const handleListingDelete = async (listingId) => {
       )}
 
       {/* Error message */}
-      {error && (
-        <p className="text-red-700 mt-5 text-center">{error}</p>
-      )}
+      {error && <p className="text-red-700 mt-5 text-center">{error}</p>}
 
       <div className="flex justify-between mt-5">
-        <span onClick={handleDeleteUser}  className="text-red-700 cursor-pointer">Delete Account</span>
-        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">Sign Out</span>
+        <span
+          onClick={handleDeleteUser}
+          className="text-red-700 cursor-pointer"
+        >
+          Delete Account
+        </span>
+        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">
+          Sign Out
+        </span>
       </div>
-        <p className="text-red-700 mt-5" >{error ? error : ''}</p>
-        <p className="text-green-700 mt-5">{updateSuccess ? 'User is Updated successfully' : ''}</p>
-      <button onClick={handleShowListings} className="text-green-700 w-full" >Show Listing</button> 
-        <p className="text-red-700 mt-5">{showListingsError ? 'Error showing Listing' : ''}</p>
-       
-       {userListings && userListings.length > 0 && 
-       <div className="flex flex-col gap-4">
-        <h1 className="text-center mt-7 text-2xl font-semibold">Your Listings</h1>
-        {userListings.map((listing) => ( 
-          <div key={listing._id} className="border rounded-lg p-3 flex justify-between items-center gap-4">
-             <Link to={`/listing/${listing._id}`} >
-             <img className="h-16 w-16 object-contain " src={listing.imageUrls[0]} alt="listing Cover" />
-             </Link> 
-             <Link className=" text-slate-700 font-semibold flex-1 hover:underline truncate" to={`/listing/${listing._id}`} >
-             <p>{listing.name}</p>
-             </Link>
-             <div className=" flex flex-col items-center ">
-               <button onClick={()=>handleListingDelete(listing._id)} className="text-red-700 uppercase">Delete</button>
-               <Link to={`/update-listing/${listing._id}`}>
-               <button className="text-green-700 uppercase">Edit</button>
-               </Link>
-             </div>
-          </div>
-         ))}
-       </div> 
-       }
+      <p className="text-red-700 mt-5">{error ? error : ""}</p>
+      <p className="text-green-700 mt-5">
+        {updateSuccess ? "User is Updated successfully" : ""}
+      </p>
+      <button onClick={handleShowListings} className="text-green-700 w-full">
+        Show Listing
+      </button>
+      <p className="text-red-700 mt-5">
+        {showListingsError ? "Error showing Listing" : ""}
+      </p>
+
+      {userListings && userListings.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h1 className="text-center mt-7 text-2xl font-semibold">
+            Your Listings
+          </h1>
+          {userListings.map((listing) => (
+            <div
+              key={listing._id}
+              className="border rounded-lg p-3 flex justify-between items-center gap-4"
+            >
+              <Link to={`/listing/${listing._id}`}>
+                <img
+                  className="h-16 w-16 object-contain "
+                  src={listing.imageUrls[0]}
+                  alt="listing Cover"
+                />
+              </Link>
+              <Link
+                className=" text-slate-700 font-semibold flex-1 hover:underline truncate"
+                to={`/listing/${listing._id}`}
+              >
+                <p>{listing.name}</p>
+              </Link>
+              <div className=" flex flex-col items-center ">
+                <button
+                  onClick={() => handleListingDelete(listing._id)}
+                  className="text-red-700 uppercase"
+                >
+                  Delete
+                </button>
+                <Link to={`/update-listing/${listing._id}`}>
+                  <button className="text-green-700 uppercase">Edit</button>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import OAuth from "../components/OAuth";
 export const SignUp = () => {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
+  const API = import.meta.env.VITE_API_URL;
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const handleChange = (e) => {
@@ -19,7 +20,7 @@ export const SignUp = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch(`${API}/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

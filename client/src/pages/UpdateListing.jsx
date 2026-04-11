@@ -12,6 +12,7 @@ export const UpdateListing = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const params = useParams();
+  const API = import.meta.env.VITE_API_URL;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -31,7 +32,7 @@ export const UpdateListing = () => {
   useEffect(() => {
     const fetchListing = async () => {
       const listingId = params.listingId;
-      const res = await fetch(`/api/listing/get/${listingId}`);
+      const res = await fetch(`${API}/api/listing/get/${listingId}`);
       const data = await res.json();
 
       if (data.success === false) {
@@ -144,7 +145,7 @@ export const UpdateListing = () => {
       setLoading(true);
       setError(false);
 
-      const res = await fetch(`/api/listing/update/${params.listingId}`, {
+      const res = await fetch(`${API}/api/listing/update/${params.listingId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
