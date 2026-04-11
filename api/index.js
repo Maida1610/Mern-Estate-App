@@ -30,14 +30,15 @@ app.use(
     credentials: true,
   })
 );
+const PORT = process.env.PORT || 3000;
+
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
- 
-app.listen(3000, () => {
-   console.log('Server is running on Port 3000');
-}
-); 
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 app.use("/api/user", userRouter);
 app.use('/api/auth', authRouter); 
