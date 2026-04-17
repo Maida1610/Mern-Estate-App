@@ -26,26 +26,18 @@ app.use(
   })
 );
 
-// root route
+// routes
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// routes
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);
 
-// DB connect function
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO);
-    console.log("DB connected");
-  } catch (err) {
-    console.log(err);
-  }
-};
+// DB
+mongoose.connect(process.env.MONGO).then(() => {
+  console.log("DB connected");
+});
 
-connectDB();
-
-export default app;
+export default app; // ✅ only this
